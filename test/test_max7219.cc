@@ -2,7 +2,7 @@
 #include "max7219.h"
 #include "clock16.h"
 
-typedef class _Max7219<Arduino::D7, Arduino::D6, Arduino::D5> Max7219;
+typedef class _Max7219<Arduino::D10, Arduino::D8, Arduino::D9> Max7219;
 
 int main(void)
     {

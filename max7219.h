@@ -41,7 +41,7 @@ Version for arduino-- by:
 
 */
 
-template <class CLOCK_, class DATA_, class LOAD_, byte max_=1>
+template <class CLOCK_, class DATA_, class CS_, byte max_=1>
 class _Max7219
     {
 public:
@@ -66,7 +66,9 @@ public:
         {
         CLOCK_::modeOutput();
         DATA_::modeOutput();
-        LOAD_::modeOutput();
+        CS_::modeOutput();
+
+        CLOCK_::set();
 
         // initialize all devices
         set(SCANLIMIT, 0x07);      
@@ -100,21 +102,21 @@ public:
     /// set a register for all cascaded devices 
     static void set(byte reg, byte val) 
         {
-        LOAD_::clear();       // begin     
+        CS_::clear();       // begin     
         for (byte c = 0; c < max_; c++) 
             {
             transmit(reg); // specify register
             transmit(val); // ((data & 0x01) * 256) + data >> 1); // put data
             }
-        LOAD_::clear(); // and load da shit
-        LOAD_::set(); 
+        CS_::clear(); // and load da shit
+        CS_::set(); 
         }
 
     /// set a register on device <nr>
     static void set(byte nr, byte reg, byte val) 
         {
         int c = 0;
-        LOAD_::clear();
+        CS_::clear();
 
         for (c = max_; c > nr; c--) 
             {
@@ -131,7 +133,7 @@ public:
             transmit(0);
             }
 
-        LOAD_::clear(); // and load da shit
-        LOAD_::set(); 
+        CS_::clear(); // and load da shit
+        CS_::set(); 
         }
     };
