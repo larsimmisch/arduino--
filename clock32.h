@@ -26,10 +26,7 @@ typedef _Clock<uint32_t> Clock32;
 
 Clock32 clock;
 
-/* 
- * Implementation of the clock ISR for 32 bits resolution 
- */
-ISR(TIMER0_OVF_vect)
+static void clock32_isr()
     {
     // copy these to local variables so they can be stored in registers
     // (volatile variables must be read from memory on every access)
@@ -47,6 +44,14 @@ ISR(TIMER0_OVF_vect)
     Clock32::timer0_fract = f;
     Clock32::timer0_millis = m;
     Clock32::timer0_overflow_count++;
+    }
+
+/* 
+ * Implementation of the clock ISR for 32 bits resolution 
+ */
+ISR(TIMER0_OVF_vect)
+    {
+    clock32_isr();
     }
 
 #endif

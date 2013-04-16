@@ -36,10 +36,7 @@ typedef _Clock<uint16_t,Timer0> Clock16;
 
 Clock16 clock;
 
-/* 
- * Implementation of the clock ISR for 16 bits resolution 
- */
-ISR(TIMER0_OVF_vect)
+static void clock16_isr() 
     {
     // copy these to local variables so they can be stored in registers
     // (volatile variables must be read from memory on every access)
@@ -58,5 +55,15 @@ ISR(TIMER0_OVF_vect)
     Clock16::timer_millis = m;
     Clock16::timer_overflow_count++;
     }
+
+/* 
+ * Implementation of the clock ISR for 16 bits resolution 
+ */
+#ifndef CLOCK_NO_ISR
+ISR(TIMER0_OVF_vect)
+    {
+    clock16_isr();
+    }
+#endif
 
 #endif
