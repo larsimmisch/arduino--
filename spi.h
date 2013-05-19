@@ -53,6 +53,25 @@ public:
             ::delayMicroseconds(delay);
         return SPDR;
         }
+
+    static uint16_t transfer(uint16_t value, byte delay = 0)
+        {
+        uint16_t result = 0;
+        Ss::clear();
+        SPDR = (value & 0xff00) >> 8;
+        wait();
+        result = SPDR << 8;
+
+        SPDR = value & 0xff;
+        wait();
+        result |= SPDR;
+
+        Ss::set();
+        if (delay > 0)
+            ::delayMicroseconds(delay);
+        return result;
+        }
+
     };
 
 class NullPin
