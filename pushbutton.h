@@ -5,7 +5,7 @@
 
 #include "arduino--.h"
 
-template<class Timer_, class Pin, int debounce>
+template<class Timer_, class Pin_, int debounce_>
 class PushButton
     {
 public:
@@ -17,21 +17,21 @@ public:
         keydown
         };
 
-    void init()
+    static void init()
         {
-        Pin::modeInput();
+        Pin_::modeInput();
         // aktivate pullup
-        Pin::set();
-        previous_ = !Pin::read();
+        Pin_::set();
+        previous_ = !Pin_::read();
         changed_ = Timer_::millis();
         duration_ = 0;
         }
 
-    event_type read()
+    static event_type read()
         {
         const typename Timer_::time_res_t now = Timer_::millis();
         // The button is active low
-        const bool pressed = !Pin::read();
+        const bool pressed = !Pin_::read();
 
         // If the switch changed, due to noise or pressing...
         if (pressed != previous_) 
@@ -41,7 +41,7 @@ public:
             const typename Timer_::time_res_t delta = now - changed_;
             changed_ = now;
     
-            if (delta > debounce) 
+            if (delta > debounce_) 
                 {
                 if (pressed)
                     {
@@ -57,12 +57,22 @@ public:
         }
 
     // duration is only valid after a keyup event
-    typename Timer_::time_res_t duration() { return duration_; }
+    static typename Timer_::time_res_t duration() { return duration_; }
 
 private:
-    bool previous_;
-    typename Timer_::time_res_t changed_;
-    typename Timer_::time_res_t duration_;
+    static bool previous_;
+    static typename Timer_::time_res_t changed_;
+    static typename Timer_::time_res_t duration_;
 };
+
+template<class Timer_, class Pin_, int debounce_>
+bool PushButton<Timer_, Pin_, debounce_>::previous_ = false;
+
+template<class Timer_, class Pin_, int debounce_>
+typename Timer_::time_res_t PushButton<Timer_, Pin_, debounce_>::changed_ = 0;
+
+template<class Timer_, class Pin_, int debounce_>
+typename Timer_::time_res_t PushButton<Timer_, Pin_, debounce_>::duration_ = 0;
+
 
 #endif
