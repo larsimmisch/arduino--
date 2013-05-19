@@ -533,29 +533,32 @@ private:
   necessary, but when the _Pin methods are used via a subclass like
   _ChangeInterruptPin, gcc doesn't automatically inline these methods any more.
  */
-template <byte ddr, byte port, byte in, byte bit>
+template <byte ddr_, byte port_, byte in_, byte bit_>
 class _Pin
     {
 public:
 
+    const static byte port = port_;
+    const static byte pin = bit_;
+
     static void modeOutput() __attribute__((always_inline))
-        { _SFR_IO8(ddr) |= _BV(bit); }
+        { _SFR_IO8(ddr_) |= _BV(bit_); }
     static void modeInput() __attribute__((always_inline))
-        { _SFR_IO8(ddr) &= ~_BV(bit); }
+        { _SFR_IO8(ddr_) &= ~_BV(bit_); }
     static void modeInputPullup() __attribute__((always_inline))
         { modeInput(); set(); }
     static void modeInputTristate() __attribute__((always_inline))
         { modeInput(); clear(); }
     static void set() __attribute__((always_inline))
-        { _SFR_IO8(port) |= _BV(bit); }
+        { _SFR_IO8(port_) |= _BV(bit_); }
     static void clear() __attribute__((always_inline))
-        { _SFR_IO8(port) &= ~_BV(bit); }
+        { _SFR_IO8(port_) &= ~_BV(bit_); }
 
     /** Return 1 if the Pin reads HIGH */
     static byte read() __attribute__((always_inline))
-        { return !!(_SFR_IO8(in) & _BV(bit)); }
+        { return !!(_SFR_IO8(in_) & _BV(bit_)); }
     static byte toggle() __attribute__((always_inline))
-        { return (_SFR_IO8(port) ^= _BV(bit)); }
+        { return (_SFR_IO8(port_) ^= _BV(bit_)); }
     };
 
 template <class Pin_, class OCR_>
@@ -611,6 +614,13 @@ public:
 template <class Pin_, byte AIN_>
 class _AnalogPin : public Pin_
     {
+public:
+
+    static void analogActivate() __attribute__((always_inline))
+        {
+        ADMUX = (ADMUX & ~0x07) | (AIN_ & 0x07);        
+        }
+
     static void analogStart(uint8_t reference) __attribute__((always_inline))
         {
         // set the analog reference (high two bits of ADMUX) and select the
@@ -621,14 +631,8 @@ class _AnalogPin : public Pin_
         ADCSRA |= (1 << (ADSC));
         }
 
-    static int analogRead(uint8_t reference)
+    static int analogValue() __attribute__((always_inline))
         {
-        analogStart(reference);
-
-        // ADSC is cleared when the conversion finishes
-        while (ADCSRA & (1 << ADSC))
-            ;
-
         // we have to read ADCL first; doing so locks both ADCL
         // and ADCH until ADCH is read.  reading ADCL second would
         // cause the results of each conversion to be discarded,
@@ -638,6 +642,17 @@ class _AnalogPin : public Pin_
 
         // combine the two bytes
         return (high << 8) | low;
+        }
+
+    static int analogRead(uint8_t reference)
+        {
+        analogStart(reference);
+
+        // ADSC is cleared when the conversion finishes
+        while (ADCSRA & (1 << ADSC))
+            ;
+
+        return analogValue();
         }
     };
 
