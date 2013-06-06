@@ -611,24 +611,28 @@ public:
 #if defined (ADMUX) && defined (ADCSRA) && defined (ADSC) && defined (ADCH) \
   && defined (ADCL)
 
-template <class Pin_, byte AIN_>
-class _AnalogPin : public Pin_
+class ADCMux
     {
 public:
 
-    static void analogActivate() __attribute__((always_inline))
+    static void enableInterrupt() 
         {
-        ADMUX = (ADMUX & ~0x07) | (AIN_ & 0x07);        
+        ADCSRA |= (1 << ADIE);
         }
 
-    static void analogStart(uint8_t reference) __attribute__((always_inline))
+    static void freeRunning()
         {
-        // set the analog reference (high two bits of ADMUX) and select the
-        // channel (low 4 bits).  this also sets ADLAR (left-adjust result)
-        // to 0 (the default).
-        ADMUX = (reference << 6) | (AIN_ & 0x07);
-        // start the conversion
-        ADCSRA |= (1 << (ADSC));
+        ADCSRB &= ~0x07;
+        ADCSRA |= (1 << ADATE);
+        }
+
+    /** Read the left-adjusted 8bit value from the ADC.
+
+        The ADC must have been started with LEFT_ADJUST.
+     */
+    static int8_t analogLeftAdjusted() __attribute__((always_inline))
+        {
+        return ADCH;
         }
 
     static int analogValue() __attribute__((always_inline))
@@ -644,7 +648,51 @@ public:
         return (high << 8) | low;
         }
 
-    static int analogRead(uint8_t reference)
+    static void prescaler(byte scale) 
+        { 
+        ADCSRA = (ADCSRA & ~0x07) | (scale & 0x07);
+        }
+
+    static void prescaler2()  { prescaler(1); }
+    static void prescaler4()  { prescaler(2); }
+    static void prescaler8()  { prescaler(3); }
+    static void prescaler16()  { prescaler(4); }
+    static void prescaler32()  { prescaler(5); }
+    static void prescaler64()  { prescaler(6); }
+    static void prescaler128()  { prescaler(7); }
+    };
+
+template <class Pin_, byte AIN_>
+class _AnalogPin : public Pin_
+    {
+public:
+
+    static const byte AREF = 0; // AREF, internal voltage reference turned off
+    static const byte AVCC = 1; // AVcc with external capacitor at AREF pin
+    static const byte V11 = 3;  // Internal voltage reference with external 
+                                // capacitor at AREF pin
+
+    static const byte RIGHT_ADJUST = 0;
+    static const byte LEFT_ADJUST = (1 << ADLAR);
+
+    static void analogActivate() __attribute__((always_inline))
+        {
+        ADMUX = (ADMUX & ~0x0f) | ( AIN_ & 0x0f);        
+        }
+
+    static void analogStart(byte adjust = RIGHT_ADJUST, byte reference = AVCC) 
+      __attribute__((always_inline))
+        {
+        // set the analog reference (high two bits of ADMUX) and select the
+        // channel (low 4 bits). This also sets ADLAR 
+
+        ADMUX = (reference << 6) | (AIN_ & 0x0f) | adjust;
+
+        // enable ADC and start the conversion
+        ADCSRA |= (1 << (ADSC)) | (1 << (ADEN));
+        }
+
+    static int analogRead(byte reference = AVCC)
         {
         analogStart(reference);
 
@@ -652,7 +700,7 @@ public:
         while (ADCSRA & (1 << ADSC))
             ;
 
-        return analogValue();
+        return ADCMux::analogValue();
         }
     };
 

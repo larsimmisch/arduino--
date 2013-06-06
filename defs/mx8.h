@@ -4,13 +4,6 @@
 
 // Analog input voltage references
 
-// AREF, Internal Vref turned off 
-const uint8_t REF_AREF = 0;
-// AVCC with external capacitor at AREF pin
-const uint8_t REF_AVCC_EXT_CAP = 1;
-// Internal 1.1V Voltage Reference with external capacitor at AREF pin
-const uint8_t REF_INT_1_1_EXT_CAP = 3;
-
 // FIXME: should Pins also be static members instead of typedefs?
 // These can't be typedefs because then we can't define operator= on them.
 class Register

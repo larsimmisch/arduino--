@@ -28,7 +28,7 @@ BIN = test/blink.bin test/test_clock.bin test/test_enc28j60.bin \
       test/test_ip_layered.bin test/test_clock_serial.bin \
       test/test_clock_nanode.bin test/test_ws2811.bin test/test_ws2811_2.bin \
       test/test_ws2811_bridge.bin test/test_ws2811_bridge_2.bin \
-      test/test_max7219.bin live/star_slave_onewire.bin
+      test/test_max7219.bin live/star_slave_onewire.bin test/test_wait.bin
 
 all: avr-ports.h $(BIN) $(BIN:.bin=.lst) sizes/sizes.html
 

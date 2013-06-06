@@ -9,18 +9,26 @@ int main(void)
     Arduino::init();
     Max7219::init();
 
-    Max7219::set(Max7219::ROW0, 1);   //  + - - - - - - -
-    Max7219::set(Max7219::ROW1, 3);   //  + + - - - - - -
-    Max7219::set(Max7219::ROW2, 7);   //  + + + - - - - -
-    Max7219::set(Max7219::ROW3, 15);  //  + + + + - - - -
-    Max7219::set(Max7219::ROW4, 31);  //  + + + + + - - -
-    Max7219::set(Max7219::ROW5, 63);  //  + + + + + + - -
-    Max7219::set(Max7219::ROW6, 127); //  + + + + + + + -
-    Max7219::set(Max7219::ROW7, 255); //  + + + + + + + +
+    Max7219::set(Max7219::ROW7, 0);   //  - - - - - - - -
+    Max7219::set(Max7219::ROW6, 208); //  - - - - + - + +
+    Max7219::set(Max7219::ROW5, 80);  //  - - - - + - + -
+    Max7219::set(Max7219::ROW4, 213); //  + - + - + - + +
+    Max7219::set(Max7219::ROW3, 85);  //  + - + - + - + -
+    Max7219::set(Max7219::ROW2, 86);  //  - + - - + - + -
+    Max7219::set(Max7219::ROW1, 0);   //  - - - - - - - -
+    Max7219::set(Max7219::ROW0, 0);   //  - - - - - - - -
 
     while(true)
         {
-        Clock16::sleep(500);
+        for (byte i = Max7219::ROW0; i <= Max7219::ROW7; ++i)
+            {
+            for (byte j = 0; j < 8; ++j)
+                {
+                Max7219::set(i, 1 << j);
+                Clock16::sleep(50);
+                Max7219::set(i, 0);                
+                }
+            }
         }
     return 0;
     }
