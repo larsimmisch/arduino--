@@ -175,8 +175,24 @@ public:
     
         Timer0::modeFastPWM();
 
-        // set timer 0 prescale factor to 64
+
+#ifndef TIMER0_PRESCALER
         Timer0::prescaler64();
+#else
+# if TIMER0_PRESCALER == 1
+        Timer0::prescaler1();
+# elif TIMER0_PRESCALER == 8
+        Timer0::prescaler8();
+# elif TIMER0_PRESCALER == 64
+        Timer0::prescaler64();
+# elif TIMER0_PRESCALER == 256
+        Timer0::prescaler256();
+# elif TIMER0_PRESCALER == 1024
+        Timer0::prescaler1024();
+# else
+# error "Invalid TIMER0_PRESCALER"
+# endif
+#endif
 
         // Note: timer 0 interrupt is _NOT_ enabled. To enable it,
         // include one of the clock headers.

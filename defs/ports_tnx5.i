@@ -1,3 +1,5 @@
+// mcu=attiny45
+
 D(PORTB);
 D(DDRB);
 D(PINB);

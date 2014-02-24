@@ -11,6 +11,12 @@ AR = avr-ar
 OBJCOPY = avr-objcopy
 OBJDUMP = avr-objdump
 
+ifdef TIMER0_PRESCALER
+  # Needed for Timer::micros
+  TIMER0_MICRO_SCALE = $(shell python timerscale.py -f $(CPU_FREQUENCY) -p $(TIMER0_PRESCALER))
+  DEFS+=-DTIMER0_PRESCALER=$(TIMER0_PRESCALER) -DTIMER0_MICRO_SCALE=$(TIMER0_MICRO_SCALE)
+endif
+
 VPATH=test
 
 CFLAGS = -g -Wall $(OPTIMIZE) -mmcu=$(MCU_TARGET) $(DEFS)
@@ -30,16 +36,16 @@ BIN = test/blink.bin test/test_clock.bin test/test_enc28j60.bin \
       test/test_ws2811_bridge.bin test/test_ws2811_bridge_2.bin \
       test/test_max7219.bin live/star_slave_onewire.bin test/test_wait.bin
 
-all: avr-ports.h $(BIN) $(BIN:.bin=.lst) sizes/sizes.html
+all: $(BIN) $(BIN:.bin=.lst) sizes/sizes.html
 
-.depend: avr-ports.h *.cc *.h test/*.cc live/*.cc
+.depend: *.cc *.h test/*.cc live/*.cc
 	$(CC) $(DEFS) -mmcu=$(MCU_TARGET) -MM *.cc > .depend
 	$(CC) $(DEFS) -mmcu=$(MCU_TARGET) -MM test/*.cc | sed 's;^\(.*\):;test/\1:;' >> .depend
 	$(CC) $(DEFS) -mmcu=$(MCU_TARGET) -MM live/*.cc | sed 's;^\(.*\):;live/\1:;' >> .depend
 
 .SUFFIXES: .elf .lst .bin _upload
 
-.cc.o: 
+.cc.o:
 	$(CXX) $(CXXFLAGS) -c -o $(<:.cc=.o) $<
 
 .c.o:
@@ -54,6 +60,11 @@ all: avr-ports.h $(BIN) $(BIN:.bin=.lst) sizes/sizes.html
 .o.elf:
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $<
 
+# This rule allows flashing the firmware through make
+# If you want to flash blink.bin, you can type `make blink_upload`
+.bin_upload:
+	avrdude -F -V -p $(MCU_TARGET) -P $(AVR_TTY) -c $(AVR_PROGRAMMER) -b $(AVR_RATE) -U flash:w:$<
+
 test/test.grb: test/make_grb.py
 	python test/make_grb.py > test/test.grb
 
@@ -63,11 +74,7 @@ test/test.rgb: test/make_rgb.py
 sizes/recent_sizes.json sizes/sizes.html: $(BIN)
 	python sizes/sizes.py recent generate
 
-get-ports.cc: Makefile.local
-
-avr-ports.h: get-ports.lst extract-ports.pl
-	./extract-ports.pl -f $(CPU_FREQUENCY) < get-ports.lst > avr-ports.h
-
+.PHONY: history
 history:
 	python sizes.py history generate
 
@@ -76,9 +83,6 @@ sizeclean:
 
 clean: sizeclean
 	rm -f *.o *.map *.lst *.elf *.bin test/*.o test/*.map test/*.lst \
-	test/*.elf test/*.bin avr-ports.h .depend 
-
-.bin_upload:
-	avrdude -F -V -p $(MCU_TARGET) -P $(AVR_TTY) -c $(AVR_PROGRAMMER) -b $(AVR_RATE) -U flash:w:$<
+	test/*.elf test/*.bin .depend 
 
 -include .depend

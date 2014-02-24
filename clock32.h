@@ -22,6 +22,14 @@
 
     The value from Clock32::millis() will wrap around after about 49 days.
  */
+
+// Define this for a slower clock (for low power modes). Note that you should
+// also set TIMER0_MICRO_SCALE if you don't use the default here
+// See the Makefile and timerscale.py for details
+#ifndef TIMER0_PRESCALE
+# define TIMER0_PRESCALE 64
+#endif
+
 typedef _Clock<uint32_t> Clock32;
 
 Clock32 clock;
@@ -33,8 +41,8 @@ static void clock32_isr()
     typename Clock32::time_res_t m = Clock32::timer0_millis;
     uint16_t f = Clock32::timer0_fract;
 
-    m += (64 * (256 / (F_CPU / 1000000))) / 1000;
-    f += (64 * (256 / (F_CPU / 1000000))) % 1000;
+    m += (TIMER0_PRESCALE * (256 / (F_CPU / 1000000))) / 1000;
+    f += (TIMER0_PRESCALE * (256 / (F_CPU / 1000000))) % 1000;
     if (f >= 1000)
 	{
 	f -= 1000;

@@ -8,7 +8,17 @@
 #include <avr/sleep.h>
 #include <util/delay.h>
 #include <avr/pgmspace.h>
-#include "avr-ports.h"
+
+#if defined (__AVR_ATmega328P__) || defined (__AVR_ATmega328__) \
+    || defined (__AVR_ATmega168__) || defined (__AVR_ATmega168A__) \
+    || defined (__AVR_ATmega168P__)
+#include "defs/ports_mx8.h"
+#elif defined (__AVR_ATtiny85__) || defined (__AVR_ATtiny45__) \
+  || defined (__AVR_ATTiny25__)
+#include "defs/ports_tnx5.h"
+#else
+#error "No port definition for architecture found"
+#endif
 
 typedef uint8_t byte;
 
@@ -713,6 +723,14 @@ public:
     static void noInterrupts() { cli(); }
     };
 
+#ifndef TIMER0_MICRO_SCALE
+# define TIMER0_MICRO_SCALE 6
+#endif
+
+#ifndef TIMER0_PRESCALE
+# define TIMER0_PRESCALE 64
+#endif
+
 /** Don't use this directly, use Clock16 or Clock32 instead
  */
 template<typename timeres_t, class Timer> class _Clock
@@ -740,13 +758,12 @@ public:
         ScopedInterruptDisable sid;
 
         t = Timer::TCNT::read();
-        m = timer_overflow_count % (1 << TIMER16_MICRO_SCALE);
+        m = timer_overflow_count % (1 << TIMER0_MICRO_SCALE);
 
         if ((Timer::TIFR::read() & _BV(TOV0)) && (t == 0))
             m++;
 
-        // FIXME: Timer::PRESCALE not actually defined yet, see CLOCK16_PRESCALE
-        return ((m << 8) + t) * (Timer::PRESCALE / (F_CPU / 1000000L));
+        return ((m << 8) + t) * (TIMER0_PRESCALE / (F_CPU / 1000000L));
         }
 
     static void delay(timeres_t ms)

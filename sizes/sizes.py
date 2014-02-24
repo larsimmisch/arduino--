@@ -8,7 +8,7 @@ import json
 import subprocess
 import tempfile
 import datetime
-from optparse import OptionParser
+from argparse import ArgumentParser
 from urlparse import urlparse
 
 template = 'sizes/sizes.template'
@@ -17,60 +17,6 @@ git_sizes_json = 'sizes/git_sizes.json'
 recent_sizes_json = 'sizes/recent_sizes.json'
 quiet = False
 
-'''Various functions to maintain the sizes files and generate the HTML.
-
-There are two sizes we keep track of:
-
-recent sizes and git sizes.
-
-The recent sizes keep track of the sizes of binary files between commits.
-This file (by default recenet_sizes.json) is updated with each make.
-
-The format is:
-
-{
-    "4.6.2": {
-        "blink.bin": [
-            {
-                "index": 1, 
-                "mtime": 1329313423, 
-                "size": 226
-            },
-            {
-                "index": 2, 
-                "mtime": 1329313442, 
-                "size": 220
-            },            
-        ]
-    }
-}
-
-The git sizes hold the historic data of the current branch and should be updated
-by calling this script with the "history" command, e.g.
-python sizes/sizes.py history
-
-It is recommended to update the history in the git post-commit hook or
-when a branch is created from an older commit.
-
-The format is:
-
-[
-    {
-        "git": {
-            "comment": "First cut.", 
-            "short": "1a32447", 
-            "hash": "1a324470852211e09f383615617d9fd0f159e385", 
-            "author": "Ben Laurie", 
-            "date": "2011-12-18 22:20:44 +0000", 
-            "email": "ben@links.org"
-        }, 
-        "4.6.2": {
-            "test_enc28j60.bin": 1358
-        }
-    }, 
-    ...
-]
-'''
 
 def run(*args):
     '''Run a command and return stdout and stderr as list of lines'''
@@ -504,20 +450,25 @@ def update_history(version, branch = None):
     return sizes
 
 if __name__ == '__main__':
-    parser = OptionParser('usage: %prog OPTIONS recent|generate|history|prune-boring+')
-    parser.add_option("-r", "--remote", default='origin',
+    parser = ArgumentParser(description = 'Update binary size history/graphs')
+    parser.add_argument("-r", "--remote", default='origin',
                       help="the git REMOTE name (default is origin)")
-    parser.add_option("-q", "--quiet", action='store_true',
+    parser.add_argument("-q", "--quiet", action='store_true',
                       help="be somewhat quiet")
-    options, args = parser.parse_args()
+    parser.add_argument('command', nargs='+',
+                        help=" one or more of 'recent', 'history', "
+                      "'generate', 'prune-boring'."
+                      "'recent' and 'history' update the JSON data,"
+                      "'generate' creates/updates the graphs")
+    args = parser.parse_args()
 
-    quiet = options.quiet
+    quiet = args.quiet
 
     version = avr_gcc_version()
     recent_sizes = None
     git_sizes = None
 
-    for a in args:
+    for a in args.command:
         if a == 'recent':
             recent_sizes = update_recent(version)
             write_sizes(recent_sizes, 'sizes/recent_sizes.json')
@@ -525,11 +476,11 @@ if __name__ == '__main__':
             git_sizes = update_history(version)
             write_sizes(git_sizes, 'sizes/git_sizes.json')
         elif a == 'generate':
-            generate(version, git_sizes, recent_sizes, options.remote)
+            generate(version, git_sizes, recent_sizes, args.remote)
         elif a == 'prune-boring':
             prune_boring_git_sizes()
         else:
             parser.print_help()
     else:
-        generate(version, git_sizes, recent_sizes, options.remote)
+        generate(version, git_sizes, recent_sizes, args.remote)
         

@@ -1,3 +1,5 @@
+// mcu=atmega328p
+
 D(PORTB);
 D(DDRB);
 D(PINB);
