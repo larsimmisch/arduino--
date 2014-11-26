@@ -3,7 +3,18 @@
 
 #include "arduino--.h"
 
-template <class Sck, class Miso, class Mosi, class Ss> 
+class NullPin
+    {
+public:
+    static void modeOutput() { }
+    static void modeInput() { }
+    static void set() { }
+    static void clear() { }
+    // Using read() or toggle() will trigger a compilation error.
+    };
+
+
+template <class Sck, class Miso, class Mosi, class Ss=NullPin> 
     class _SPI
     {
 public:
@@ -73,17 +84,6 @@ public:
         }
 
     };
-
-class NullPin
-    {
-public:
-    static void modeOutput() { }
-    static void modeInput() { }
-    static void set() { }
-    static void clear() { }
-    // Using read() or toggle() will trigger a compilation error.
-    };
-
 
 typedef _SPI<Pin::SPI_SCK, Pin::SPI_MISO, Pin::SPI_MOSI, NullPin> SPI;
 typedef _SPI<Pin::SPI_SCK, Pin::SPI_MISO, Pin::SPI_MOSI, Pin::SPI_SS> SPISS;
