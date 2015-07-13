@@ -43,7 +43,7 @@ int main(void)
 ## Prerequisites
 
 * `avrdude`
-* `avr-gcc` (and avr-binutils)
+* `avr-gcc` (and `avr-binutils`)
 * `avr-libc`
 * `perl`
 * `python`
@@ -53,6 +53,6 @@ On a Mac, installation via [Homebrew](http://brew.sh/) is recommended:
     brew tap larsimmisch/avr
     brew install avr-libc
 
-This will pull in the prerequisites avr-binutils and avr-gcc.
+This will pull in the prerequisites `avr-binutils` and `avr-gcc`.
 
 
