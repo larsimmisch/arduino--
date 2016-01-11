@@ -39,19 +39,19 @@ template <byte lsb, byte maskbit> class _Interrupt
 typedef class _Interrupt<ISC00, INT0> Interrupt0;
 typedef class _Interrupt<ISC10, INT1> Interrupt1;
 
-typedef _Timer_2C<_Register<NTCNT0>, _Register<NOCR0A>, _Register<NOCR0B>, 
-                  _Register<NTCCR0A>, _Register<NTCCR0B>, 
+typedef _Timer_2C<_Register<NTCNT0>, _Register<NOCR0A>, _Register<NOCR0B>,
+                  _Register<NTCCR0A>, _Register<NTCCR0B>,
                   _Register<NTIMSK0>, _Register<NTIFR0> >
 Timer0;
 
-typedef _Timer_2C3<_Register16<NTCNT1>, _Register16<NICR1>, 
-                   _Register16<NOCR1A>, _Register16<NOCR1B>, 
+typedef _Timer_2C3<_Register16<NTCNT1>, _Register16<NICR1>,
+                   _Register16<NOCR1A>, _Register16<NOCR1B>,
                    _Register<NTCCR1A>, _Register<NTCCR1B>, _Register<NTCCR1C>,
                    _Register<NTIMSK1>, _Register<NTIFR1> >
 Timer1;
 
 typedef _Timer_2C<_Register<NTCNT2>, _Register<NOCR2A>, _Register<NOCR2B>,
-                  _Register<NTCCR2A>, _Register<NTCCR2B>, 
+                  _Register<NTCCR2A>, _Register<NTCCR2B>,
                   _Register<NTIMSK2>, _Register<NTIFR2> >
 Timer2;
 
@@ -60,7 +60,7 @@ class Pin
 public:
     // Port B
     typedef _Pin<NDDRB, NPORTB, NPINB, PB0> D_B0;
-    typedef _ChangeInterruptPin<D_B0, NPCMSK0, PCIE0, NPCICR, PCINT0> B0; 
+    typedef _ChangeInterruptPin<D_B0, NPCMSK0, PCIE0, NPCICR, PCINT0> B0;
 
     typedef _Pin<NDDRB, NPORTB, NPINB, PB1> D_B1;
     typedef _PWMPin<D_B1, Timer1::CompA> OC1A;
@@ -74,7 +74,7 @@ public:
     typedef _PWMPin<D_B3, Timer2::CompA> OC2A;
     typedef _ChangeInterruptPin<OC2A, NPCMSK0, PCIE0, NPCICR, PCINT3> B3;
 
-    typedef _Pin<NDDRB, NPORTB, NPINB, PB4> D_B4; 
+    typedef _Pin<NDDRB, NPORTB, NPINB, PB4> D_B4;
     typedef _ChangeInterruptPin<D_B4, NPCMSK0, PCIE0, NPCICR, PCINT4> B4;
 
     typedef _Pin<NDDRB, NPORTB, NPINB, PB5> D_B5;
@@ -152,7 +152,7 @@ public:
     typedef Pin::C2 A2;
     typedef Pin::C3 A3;
     typedef Pin::C4 A4;
-    
+
     // The digital pins in Arduino numbering
     typedef Pin::D0 D0;
     typedef Pin::D1 D1;
@@ -172,7 +172,7 @@ public:
     static void init()
         {
         interrupts();
-    
+
         Timer0::modeFastPWM();
 
 
@@ -247,6 +247,25 @@ public:
         Pin::B2::set();
         Pin::B2::modeOutput();
         }
+    };
+
+class JeeNode : public AVRBase
+    {
+public:
+    static void init()
+        {
+        Arduino::init();
+        }
+
+    typedef Pin::D4 DIO1;
+    typedef Pin::C0 AIO1;
+    typedef Pin::D5 DIO2;
+    typedef Pin::C1 AIO2;
+    typedef Pin::D6 DIO3;
+    typedef Pin::C2 AIO3;
+    typedef Pin::D7 DIO4;
+    typedef Pin::C3 AIO4;
+
     };
 
 #endif // ARDUINO_MINUS_MINUS_MX8
