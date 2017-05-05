@@ -11,7 +11,7 @@ still having an abstraction layer that is at least very similar between devices.
 
 This is what hello world - blinking an LED - looks like:
 
-<pre lang="c++"><code>
+```c++
 /*
  The hello world of arduino--, a C++ take on the Arduino libraries.
 
@@ -34,10 +34,10 @@ int main(void)
         // wait
         _delay_ms(2000);
         }
-    
+
     return 0;
     }
-</code></pre>
+```
 # Getting started
 
 ## Prerequisites
@@ -54,5 +54,3 @@ On a Mac, installation via [Homebrew](http://brew.sh/) is recommended:
     brew install avr-libc
 
 This will pull in the prerequisites `avr-binutils` and `avr-gcc`.
-
-
