@@ -13,7 +13,7 @@
  * NanodeMAC
  * Rufus Cable, June 2011 (threebytesfull)
  *
- * Library version created by Andrew Lindsay for use with Nanode and 
+ * Library version created by Andrew Lindsay for use with Nanode and
  * EtherShield Library at https://github.com/thiseldo/EtherShield
  *
  * Based on sample code to read the MAC address from the 11AA02E48 on the
@@ -45,10 +45,10 @@ class NanodeMAC
     static const uint16_t TSTBY_US = 600;
     static const byte THDR_US = 6;
 #ifndef NANODEMAC_SLOW
-    static const double QUARTER_BIT = 2.5;
+    static constexpr double QUARTER_BIT = 2.5;
     static const byte HALF_BIT = 5;
 #else
-    static const double QUARTER_BIT = 10;
+    static constexpr double QUARTER_BIT = 10;
     static const byte HALF_BIT = 20;
 #endif
 
@@ -171,13 +171,13 @@ public:
         sendByte(0x00);
         // word address LSB 0xFA
         sendByte(0xFA);
-  
+
         // read 6 bytes into array
         readBytes(macaddr_, 6);
 
         // No need to wait here, since we standby() before doing anything.
         fastStandby();
-  
+
         // Re-enable interrupts
         AVRBase::interrupts();
         }
