@@ -43,7 +43,8 @@ int main(void)
 ## Prerequisites
 
 * `avrdude`
-* `avr-gcc` (and `avr-binutils`)
+* `avr-gcc`
+* `avr-binutils`
 * `avr-libc`
 * `perl`
 * `python`
@@ -52,3 +53,5 @@ On a Mac, installation via [Homebrew](http://brew.sh/) is recommended:
 
     brew tap osx-cross/avr
     brew install avr-gcc
+
+This will automatically install avr-binutils and avr-libs, too.
