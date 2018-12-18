@@ -50,7 +50,5 @@ int main(void)
 
 On a Mac, installation via [Homebrew](http://brew.sh/) is recommended:
 
-    brew tap larsimmisch/avr
-    brew install avr-libc
-
-This will pull in the prerequisites `avr-binutils` and `avr-gcc`.
+    brew tap osx-cross/avr
+    brew install avr-gcc
